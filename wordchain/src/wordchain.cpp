@@ -6,12 +6,28 @@
 using namespace std;
 
 const string ALPHABET  = "abcdefghijklmnopqrstuvwxyz";
-/*
+
 void wordChain(string word1, string word2){
     queue<stack<string>> queueOfStacks;
-    stack
+    stack<string> words;
+    words.push(word1);
+    queueOfStacks.push(words);
+
+    while(!queueOfStacks.empty())
+    {
+        stack<string> currentStack = queueOfStacks.front();
+        if (word2 == currentStack.top()) {
+            return currentStack;
+        }
+        else
+        {
+
+        }
+    }
+
+    cout << queueOfStacks.front().top() << endl;
 }
-*/
+
 
 int main() {
     cout << "Welcome to TDDD86 Word Chain." << endl;
@@ -24,7 +40,7 @@ int main() {
     cin >> word1 >> word2;
     cout << "Chain from " << word1 << " back to " << word2 << ":" << endl;
 
-    // wordChain(word1, word2);
+    wordChain(word1, word2);
 
     // TODO: Finish the program!
 
