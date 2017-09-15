@@ -102,7 +102,7 @@ int countNeigh(int row, int col, Grid<char> grid)
 }
 
 void nextGeneration(Grid<char>& oldGrid)
-// Iterated the grid according to the rules of Game of Life.
+// Iterate the grid according to the rules of Game of Life.
 {
     int row = oldGrid.numRows();
     int col = oldGrid.numCols();
@@ -165,7 +165,7 @@ int main()
     char option = '0'; // 
     while (option != 'q')
     {
-        cout << "a) nimate, t) ick, q) uit? ";
+        cout << "a)nimate, t)ick, q)uit? ";
         cin >> option;
         if (option == 't') {
             clearConsole();
