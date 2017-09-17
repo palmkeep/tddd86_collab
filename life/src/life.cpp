@@ -1,12 +1,9 @@
-// This is the CPP file you will edit and turn in.
-// Also remove these comments here and add your own.
-// TODO: remove this comment header
-
 #include <iostream>
 #include <string>
 #include "grid.h"
 #include "lifeutil.h"
 #include <fstream>
+#include <set>
 using namespace std;
 
 /*
@@ -36,8 +33,8 @@ void welcomeMsg()
 void displayGrid(Grid<char> grid)
 // Takes current grind as input and prints it out.
 {
-    for (int i=0; i<grid.numRows(); i++) {
-        for (int j=0; j<grid.numCols(); j++) {
+    for (int i = 0; i < grid.numRows(); i++) {
+        for (int j = 0; j < grid.numCols(); j++) {
             cout << grid[i][j];
         }
         cout << endl;
@@ -51,49 +48,36 @@ int countNeigh(int row, int col, Grid<char> grid)
     int numCol = grid.numCols();
     int count = 0;
 
-    if (row != numRow - 1) {
-        if (grid[row+1][col] == 'X') {
-            count += 1;
-        }
-    }     
-    if (row != 0) {
-        if (grid[row-1][col] == 'X') {
-            count += 1;
-        }
+    set<int> Dx, Dy;
+
+    if (row != 0)
+    {
+        Dx.insert(-1);
     }
-    if (col != numCol - 1) {
-        if (grid[row][col+1] == 'X') {
-            count += 1;
-        }
-    }     
-    if (col != 0) {
-        if (grid[row][col-1] == 'X') {
-            count += 1;
-        }
+    if (col != 0)
+    {
+        Dy.insert(-1);
+    }
+    if (row != numRow - 1)
+    {
+        Dx.insert(1);
+    }
+    if (col != numCol - 1)
+    {
+        Dy.insert(1);
     }
 
-    if (col != numCol -1) {
-        if (row != 0) {
-            if (grid[row-1][col+1] == 'X') {
-                count += 1;
-            }
-        }
-        if (row != numRow - 1) {
-            if (grid[row+1][col+1] == 'X') {
-                count += 1;
-            }
-        }
-    }
+    Dx.insert(0);
+    Dy.insert(0);
 
-    if (col != 0) {
-        if (row != 0) {
-            if (grid[row-1][col-1] == 'X') {
-                count += 1;
-            }
-        }
-        if (row != numRow - 1) {
-            if (grid[row+1][col-1] == 'X') {
-                count += 1;
+
+    for (set<int>::iterator dx = Dx.begin(); dx != Dx.end(); dx++)
+    {
+        for (set<int>::iterator dy = Dy.begin(); dy != Dy.end(); dy++)
+        {
+            if ( !(*dx == 0 && *dy == 0) && grid[row + *dx][col + *dy] == 'X' )
+            {
+                count++;
             }
         }
     }
@@ -108,8 +92,8 @@ void nextGeneration(Grid<char>& oldGrid)
     int col = oldGrid.numCols();
     Grid<char> newGrid = Grid<char>(row, col); 
 
-    for(int i=0; i< row; i++) {
-        for (int j=0; j<col; j++) {
+    for(int i = 0; i < row; i++) {
+        for (int j = 0; j < col; j++) {
             int count = countNeigh(i, j, oldGrid);
             if (count == 2) {
                 newGrid[i][j] = oldGrid[i][j];
