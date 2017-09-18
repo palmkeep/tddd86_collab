@@ -13,6 +13,7 @@ set<string> dictionary;
 
 
 void initDictionary(u_int wordLength)
+//Reads in all the words of length $wordLength from the dictionary from dictionary.txt.
 {
     ifstream inDictionary;
     inDictionary.open("dictionary.txt");
@@ -28,7 +29,8 @@ void initDictionary(u_int wordLength)
     }
 }
 
-void updateDictionary(string wordConstraints)
+set<string> updateDictionary(string wordConstraints)
+// Singles out the stupid words from dic.
 {
     queue< pair<char, int> > constraintsQueue;
     for(string::iterator constIt=wordConstraints.begin(); constIt!=wordConstraints.end(); ++constIt)
@@ -88,17 +90,32 @@ void updateDictionary(string wordConstraints)
         }
     }
 
-    dictionary = newDictionary;
+    return newDictionary;
 }
 
-int main() {
+
+int main()
+{
     cout << "Welcome to Hangman." << endl;
 
     int wordLength;
     cout << "Enter word length: " << endl;
     cin >> wordLength;
+
+    int numGuesses;
+    cout << "Enter number of guesses: " << endl;
+    cin >> numGuesses;
+
     initDictionary(wordLength);
-    updateDictionary("__ar");
+
+    string constraint = ;
+    for (int i = 0; i < numGuesses; i++)
+    {
+        char guess;
+        cin >> guess;
+
+
+    }
 
     cout << endl << endl;
     cout << dictionary.size() << endl;
