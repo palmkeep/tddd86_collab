@@ -4,20 +4,37 @@
 #include <queue>
 #include <iterator>
 #include <set>
+#include <unordered_set>
+#include <vector>
+
 using namespace std;
 
 const string ALPHABET  = "abcdefghijklmnopqrstuvwxyz";
 
-set<string> dictionary;
-//Maybe not the right data type??
+
+//Returns the input string along with an array that contains the indicies of all occurences of inout guess.
+pair<string, vector<int>> findGuessInWord(const string& word, const char& guess)
+{
+    vector<int> indexGuessOccurence;
+    int lengthWord = word.size();
+    for (int i = 0; i < lengthWord; i++)
+    {
+        if (word[i] == guess)
+        {
+            indexGuessOccurence.insert(i);
+        }
+    }
+    return pair <word, indexGuessOccurence>;
+}
 
 
-void initDictionary(u_int wordLength)
 //Reads in all the words of length $wordLength from the dictionary from dictionary.txt.
+set<string> initDictionary(const u_int wordLength)
 {
     ifstream inDictionary;
     inDictionary.open("dictionary.txt");
 
+    set<string> dictionary;
     string dictWord;
     while(!inDictionary.eof())
     {
@@ -27,13 +44,14 @@ void initDictionary(u_int wordLength)
             dictionary.insert(dictWord);
         }
     }
+    return dictionary;
 }
 
-set<string> updateDictionary(string wordConstraints)
 // Singles out the stupid words from dic.
+set<string> updateDictionary(string wordConstraints, set<string> dictionary)
 {
     queue< pair<char, int> > constraintsQueue;
-    for(string::iterator constIt=wordConstraints.begin(); constIt!=wordConstraints.end(); ++constIt)
+    for(string::iterator constIt = wordConstraints.begin(); constIt != wordConstraints.end(); ++constIt)
     {
         if (*constIt != '_')
         {
@@ -59,7 +77,7 @@ set<string> updateDictionary(string wordConstraints)
 
 
     set<string> newDictionary;
-    for(set<string>::iterator setIt=dictionary.begin(); setIt!=dictionary.end(); ++setIt)
+    for(set<string>::iterator setIt = dictionary.begin(); setIt != dictionary.end(); ++setIt)
     {
         pair<char, int> currentConstraint = constraintsQueue.front();
         string currentWord = *setIt;
@@ -94,6 +112,24 @@ set<string> updateDictionary(string wordConstraints)
 }
 
 
+set<string> applyConstraint(const set<string>& prevDict, string constraint, char guess)
+{
+
+    int lengthWord = (*prevDict.begin()).size(); // COMMENT GOES HERE
+    set<string> newDict;
+    for (int i = 0; i < lengthWord; i++)
+    {
+        for (set<string>::iterator dictIt = prevDict.begin(); dictIt != prevDict.end(); ++dictIt)
+        {
+            if ((*dictIt)[i] == guess)
+            {
+
+            }
+        }
+    }
+    return newDict;
+}
+
 int main()
 {
     cout << "Welcome to Hangman." << endl;
@@ -106,15 +142,16 @@ int main()
     cout << "Enter number of guesses: " << endl;
     cin >> numGuesses;
 
-    initDictionary(wordLength);
+    set<string> dictionary = initDictionary(wordLength);
 
-    string constraint = ;
+    string constraint;
+
     for (int i = 0; i < numGuesses; i++)
     {
+        cout << "Guess a new character: " << endl;
         char guess;
         cin >> guess;
-
-
+        dictionary = applyConstraint(dictionary, constraint, guess);
     }
 
     cout << endl << endl;
@@ -123,7 +160,7 @@ int main()
     {
         cout << *setIt << endl;
     }
-    // TODO: Finish the program!
+    
 
     return 0;
 }
