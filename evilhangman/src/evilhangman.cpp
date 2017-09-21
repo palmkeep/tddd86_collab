@@ -6,6 +6,7 @@
 #include <set>
 #include <unordered_set>
 #include <vector>
+#include <map>
 
 using namespace std;
 
@@ -21,11 +22,43 @@ pair<string, vector<int>> findGuessInWord(const string& word, const char& guess)
     {
         if (word[i] == guess)
         {
-            indexGuessOccurence.insert(i);
+            indexGuessOccurence.push_back(i);
         }
     }
-    return pair <word, indexGuessOccurence>;
+    pair<string, vector<int>> wordPair(word,indexGuessOccurence);
+    return wordPair;
 }
+
+set<string> biggestDict(const char& guess, const set<string>& dictionary)
+{
+    stack< pair<string, vector<int>> > wordGuessOccurencePairs;
+    for (set<string>::iterator word = dictionary.begin(); word != dictionary.end(); ++word)
+    {
+        wordGuessOccurencePairs.push( findGuessInWord(*word, guess) );
+    }
+
+    map< int, pair<string, vector<int>> > dictSet;
+    for (stack< pair<string, vector<int>> >::iterator \
+         stackIt  = wordGuessOccurencePairs.begin(); \
+         stackIt != wordGuessOccurencePairs.end(); ++stackIt)
+    {
+        string word = *stackIt.first;
+        vector<int> guessIndex = *stackIt.second;
+        int correctGuessInWord = (*stackIt.second).size();
+        if (dictSet.find(correctGuessInWord))
+        {
+            dictSet.insert(correctGuessInWord, *stackIt);
+        }
+    }
+
+    int biggestDict;
+    for (map<int, pair<string, vector<int>> >::iterator dict = dictSet.begin(); dict != dictSet.end(); ++dict)
+    {
+        if (*dict.second)
+    }
+}
+
+
 
 
 //Reads in all the words of length $wordLength from the dictionary from dictionary.txt.
@@ -77,10 +110,10 @@ set<string> updateDictionary(string wordConstraints, set<string> dictionary)
 
 
     set<string> newDictionary;
-    for(set<string>::iterator setIt = dictionary.begin(); setIt != dictionary.end(); ++setIt)
+    for(set<string>::iterator word = dictionary.begin(); word != dictionary.end(); ++word)
     {
         pair<char, int> currentConstraint = constraintsQueue.front();
-        string currentWord = *setIt;
+        string currentWord = *word;
 
         bool fitsConstraint = true;
         int i = 0;
