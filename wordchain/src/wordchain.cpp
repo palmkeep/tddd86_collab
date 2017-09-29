@@ -114,7 +114,6 @@ int main() {
         cout << ' ';
         correctStack.pop();
     }
-
     cout << endl;
 
     return 0;
