@@ -8,17 +8,15 @@ using namespace std;
 
 const string ALPHABET  = "abcdefghijklmnopqrstuvwxyz";
 
-set<string> dictionary;
-//Maybe not the right data type??
 
-
-void initDictionary(u_int wordLength)
 //Reads in all the words of length $wordLength from the dictionary from dictionary.txt.
+set<string> initDictionary(const u_int& wordLength)
 {
     ifstream inDictionary;
     inDictionary.open("dictionary.txt");
 
     string dictWord;
+    set<string> dictionary;
     while(!inDictionary.eof())
     {
         inDictionary >> dictWord;
@@ -27,17 +25,21 @@ void initDictionary(u_int wordLength)
             dictionary.insert(dictWord);
         }
     }
+
+    return dictionary;
 }
 
-set<string> updateDictionary(string wordConstraints)
-// Singles out the stupid words from dic.
+// Singles out the bad words from dic.
+set<string> updateDictionary(const set<string>& dictionary, const string& wordConstraints)
 {
+
+    // Creates a Queue of pairs containing each letter in the constraint alongside that letters index in the word
     queue< pair<char, int> > constraintsQueue;
-    for(string::iterator constIt=wordConstraints.begin(); constIt!=wordConstraints.end(); ++constIt)
+    for(string::const_iterator constIt = wordConstraints.begin(); constIt != wordConstraints.end(); ++constIt)
     {
         if (*constIt != '_')
         {
-            constraintsQueue.push(pair<char, int>(*constIt, distance(wordConstraints.begin(), constIt)));
+            constraintsQueue.push(pair<char, int>(*constIt, distance(wordConstraints.begin(), constIt) ));
         }
     }
 
@@ -53,13 +55,10 @@ set<string> updateDictionary(string wordConstraints)
         constraintsQueue.pop();
     }
 
-
-    cout << endl;
-
-
+    cout << endl; // Huh?
 
     set<string> newDictionary;
-    for(set<string>::iterator setIt=dictionary.begin(); setIt!=dictionary.end(); ++setIt)
+    for(set<string>::const_iterator setIt = dictionary.begin(); setIt != dictionary.end(); ++setIt)
     {
         pair<char, int> currentConstraint = constraintsQueue.front();
         string currentWord = *setIt;
@@ -85,12 +84,21 @@ set<string> updateDictionary(string wordConstraints)
         }
         if (fitsConstraint)
         {
-
             newDictionary.insert(currentWord);
         }
     }
 
     return newDictionary;
+}
+
+
+// Gives back the largest dictionary given a guess from the user.
+// Updates the constraint to match the new dictionary.
+set<string> findLargestDictionary(const set<string> dictionary, const char& guess, string& constraint)
+{
+    set<string> largestDictionary;
+
+    return largestDictionary; 
 }
 
 
@@ -106,9 +114,16 @@ int main()
     cout << "Enter number of guesses: " << endl;
     cin >> numGuesses;
 
-    initDictionary(wordLength);
+ 
+    set<string> dictionary = initDictionary(wordLength);
 
-    string constraint = ;
+    string constraint;
+    for (int i = 0; i < wordLength; i++)
+    {
+        constraint += '_';
+    }
+    cout << constraint << endl;
+
     for (int i = 0; i < numGuesses; i++)
     {
         char guess;
@@ -119,7 +134,7 @@ int main()
 
     cout << endl << endl;
     cout << dictionary.size() << endl;
-    for(set<string>::iterator setIt=dictionary.begin(); setIt!=dictionary.end(); ++setIt)
+    for(set<string>::iterator setIt = dictionary.begin(); setIt != dictionary.end(); ++setIt)
     {
         cout << *setIt << endl;
     }
