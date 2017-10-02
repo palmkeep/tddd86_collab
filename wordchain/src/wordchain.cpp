@@ -8,14 +8,12 @@
 using namespace std;
 
 const string ALPHABET  = "abcdefghijklmnopqrstuvwxyz";
-unordered_set<string> prevWords;
-unordered_set<string> dictionary;
 
 
-
-void initDictionary()
+ unordered_set<string> initDictionary()
 {
     ifstream inDictionary;
+    unordered_set<string> dictionary;
     inDictionary.open("dictionary.txt");
 
     string dictWord;
@@ -24,10 +22,11 @@ void initDictionary()
         inDictionary >> dictWord;
         dictionary.insert(dictWord);
     }
+    return dictionary;
 }
 
 
-bool checkIsValidNewWord(string word)
+bool checkIsValidNewWord(string word, unordered_set<string>& dictionary, unordered_set<string>& prevWords)
 {
 
     unordered_set<string>::const_iterator dictIterator = dictionary.find(word);
@@ -52,33 +51,34 @@ bool checkIsValidNewWord(string word)
 
 stack<string> wordChain(string word1, string word2)
 {
+    unordered_set<string> dictionary = initDictionary();
+    unordered_set<string> prevWords;
     queue<stack<string>> queueOfStacks;
-    stack<string> words;
-    words.push(word1);
-    queueOfStacks.push(words);
-
+    stack<string> firstStack;
+    firstStack.push(word1);
     prevWords.insert(word1);
+    queueOfStacks.push(firstStack);
+
 
     while(!queueOfStacks.empty())
     {
         stack<string> currentStack = queueOfStacks.front();
+
         string currentWord = currentStack.top();
 
-        for(int i = 0; i < currentWord.size(); ++i)
+        for(u_int i = 0; i < currentWord.size(); ++i)
         {
             for(string::const_iterator letter=ALPHABET.begin(); letter!=ALPHABET.end(); ++letter)
             {
                 string newWord = currentWord;
-                //char diffChar = *letter;
                 newWord[i] = *letter;
                 if (word2 == newWord)
                 {
                     currentStack.push(newWord);
                     return currentStack;        //Subroutine exit
                 }
-                else if (checkIsValidNewWord(newWord))
+                else if (checkIsValidNewWord(newWord, dictionary, prevWords))
                 {
-                    //cout << newWord << endl;
                     stack<string> newStack = currentStack;
                     newStack.push(newWord);
                     queueOfStacks.push(newStack);
@@ -92,17 +92,16 @@ stack<string> wordChain(string word1, string word2)
 
 
 int main() {
-    initDictionary();
+
     cout << "Welcome to TDDD86 Word Chain." << endl;
     cout << "If you give me two English words, I will transform the" << endl;
     cout << "first into the second by changing one letter at a time." << endl;
     cout << endl;
 
-    cout << "Please type two words: ";
     string word1, word2;
+    cout << "Please type two words: ";
     cin >> word1 >> word2;
     cout << "Chain from " << word1 << " back to " << word2 << ":" << endl;
-
 
     stack<string> correctStack;
     correctStack = wordChain(word1, word2);

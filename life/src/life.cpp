@@ -18,8 +18,8 @@ using namespace std;
 */
 
 
-void welcomeMsg()
 // Prints out the welcome message with rules on the display.
+void welcomeMsg()
 {
   cout <<   " Welcome to the TDDD86 Game of Life,"
             "\n a simulation of the lifecycle of a bacteria colony."
@@ -30,8 +30,8 @@ void welcomeMsg()
             "  - A cell with 4 or more neighbours dies.\n" << endl;
 }
 
-void displayGrid(Grid<char> grid)
 // Takes current grind as input and prints it out.
+void displayGrid(const Grid<char>& grid)
 {
     for (int i = 0; i < grid.numRows(); i++) {
         for (int j = 0; j < grid.numCols(); j++) {
@@ -41,39 +41,39 @@ void displayGrid(Grid<char> grid)
     }
 }
 
-int countNeigh(int row, int col, Grid<char> grid)
 // Counts the numbers of neighbours of the given cell.
+int countNeigh(int row, int col, const Grid<char>& grid)
 {
     int numRow = grid.numRows();
     int numCol = grid.numCols();
     int count = 0;
 
-    set<int> Dx, Dy;
+    set<int> possibleDx, possibleDy;
 
     if (row != 0)
     {
-        Dx.insert(-1);
+        possibleDx.insert(-1);
     }
     if (col != 0)
     {
-        Dy.insert(-1);
+        possibleDy.insert(-1);
     }
     if (row != numRow - 1)
     {
-        Dx.insert(1);
+        possibleDx.insert(1);
     }
     if (col != numCol - 1)
     {
-        Dy.insert(1);
+        possibleDy.insert(1);
     }
 
-    Dx.insert(0);
-    Dy.insert(0);
+    possibleDx.insert(0);
+    possibleDy.insert(0);
 
 
-    for (set<int>::iterator dx = Dx.begin(); dx != Dx.end(); dx++)
+    for (set<int>::iterator dx = possibleDx.begin(); dx != possibleDx.end(); dx++)
     {
-        for (set<int>::iterator dy = Dy.begin(); dy != Dy.end(); dy++)
+        for (set<int>::iterator dy = possibleDy.begin(); dy != possibleDy.end(); dy++)
         {
             if ( !(*dx == 0 && *dy == 0) && grid[row + *dx][col + *dy] == 'X' )
             {
@@ -85,8 +85,8 @@ int countNeigh(int row, int col, Grid<char> grid)
     return count;
 }
 
-void nextGeneration(Grid<char>& oldGrid)
 // Iterate the grid according to the rules of Game of Life.
+void nextGeneration(Grid<char>& oldGrid)
 {
     int row = oldGrid.numRows();
     int col = oldGrid.numCols();
@@ -107,8 +107,8 @@ void nextGeneration(Grid<char>& oldGrid)
     oldGrid = newGrid;
 }
 
-Grid<char> getTextFile()
 // Prompts for filename and creates a grid from it.
+Grid<char> getTextFile()
 {
     ifstream inFile;
     string fileName;
@@ -139,8 +139,8 @@ Grid<char> getTextFile()
     return grid;
 }
 
-int main()
 // Starts the main menu.
+int main()
 {
     welcomeMsg();
     Grid<char> grid;

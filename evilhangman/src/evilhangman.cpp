@@ -4,17 +4,72 @@
 #include <queue>
 #include <iterator>
 #include <set>
+#include <unordered_set>
+#include <vector>
+#include <map>
+#include <stack>
+
 using namespace std;
 
 const string ALPHABET  = "abcdefghijklmnopqrstuvwxyz";
 
 
+//Returns the input string along with an array that contains the indicies of all occurences of inout guess.
+pair<string, vector<int>> findGuessInWord(const string& word, const char& guess)
+{
+    vector<int> indexGuessOccurence;
+    int lengthWord = word.size();
+    for (int i = 0; i < lengthWord; i++)
+    {
+        if (word[i] == guess)
+        {
+            indexGuessOccurence.push_back(i);
+        }
+    }
+    pair<string, vector<int>> wordPair(word,indexGuessOccurence);
+    return wordPair;
+}
+
+
+// Find and return the largest dictionary
+set<string> biggestDict(const char& guess, const set<string>& dictionary)
+{
+    stack< pair<string, vector<int>> > wordGuessOccurencePairs;
+    for (set<string>::iterator word = dictionary.begin(); word != dictionary.end(); ++word)
+    {
+        wordGuessOccurencePairs.push( findGuessInWord(*word, guess) );
+    }
+
+
+    map< int, pair<string, vector<int>> > dictSet;  // ERROR: need to fix .insert() or similar for map datatype
+    while ( !wordGuessOccurencePairs.empty() )
+    {
+        pair< string, vector<int> > wordGuessOccurence = wordGuessOccurencePairs.top();
+
+        string word = wordGuessOccurence.first;
+        vector<int> guessIndex = wordGuessOccurence.second;
+        int correctGuessInWord = (wordGuessOccurence.second).size();
+        if (dictSet.find(correctGuessInWord))
+        {
+            dictSet.insert(correctGuessInWord, wordGuessOccurence);
+        } // WHAT IF NOT?
+    }
+
+    int biggestDict;
+    for (map<int, pair<string, vector<int>> >::iterator dict = dictSet.begin(); dict != dictSet.end(); ++dict)
+    {
+        if (*dict.second)
+    }
+}
+
+
 //Reads in all the words of length $wordLength from the dictionary from dictionary.txt.
-set<string> initDictionary(const u_int& wordLength)
+set<string> initDictionary(const u_int wordLength)
 {
     ifstream inDictionary;
     inDictionary.open("dictionary.txt");
 
+    set<string> dictionary;
     string dictWord;
     set<string> dictionary;
     while(!inDictionary.eof())
@@ -61,7 +116,7 @@ set<string> updateDictionary(const set<string>& dictionary, const string& wordCo
     for(set<string>::const_iterator setIt = dictionary.begin(); setIt != dictionary.end(); ++setIt)
     {
         pair<char, int> currentConstraint = constraintsQueue.front();
-        string currentWord = *setIt;
+        string currentWord = *word;
 
         bool fitsConstraint = true;
         int i = 0;
@@ -102,6 +157,27 @@ set<string> findLargestDictionary(const set<string> dictionary, const char& gues
 }
 
 
+// To be constructed!!!
+set<string> applyConstraint(const set<string>& prevDict, string constraint, char guess)
+{
+
+    int lengthWord = (*prevDict.begin()).size(); // COMMENT GOES HERE
+    set<string> newDict;
+    for (int i = 0; i < lengthWord; i++)
+    {
+        for (set<string>::iterator dictIt = prevDict.begin(); dictIt != prevDict.end(); ++dictIt)
+        {
+            if ((*dictIt)[i] == guess)
+            {
+
+            }
+        }
+    }
+    return newDict;
+}
+
+
+// Main loop
 int main()
 {
     cout << "Welcome to Hangman." << endl;
@@ -124,12 +200,13 @@ int main()
     }
     cout << constraint << endl;
 
+
     for (int i = 0; i < numGuesses; i++)
     {
+        cout << "Guess a new character: " << endl;
         char guess;
         cin >> guess;
-
-
+        dictionary = applyConstraint(dictionary, constraint, guess);
     }
 
     cout << endl << endl;
@@ -138,7 +215,7 @@ int main()
     {
         cout << *setIt << endl;
     }
-    // TODO: Finish the program!
+    
 
     return 0;
 }

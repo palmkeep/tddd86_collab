@@ -157,7 +157,7 @@ all: Makefile $(TARGET)
 
 $(TARGET):  $(OBJECTS)  
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
-	cp -r "/home/andpa149/courses/TDDD86/tddd86_collab/wordchain/res/dictionary.txt" "/home/andpa149/courses/TDDD86/tddd86_collab/wordchain" 
+	cp -r "/home/elila090/Documents/tddd86/tddd86_collab/wordchain/res/dictionary.txt" "/home/elila090/Documents/tddd86/tddd86_collab/wordchain" 
 	
 
 Makefile: WordChain.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64/qmake.conf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
