@@ -9,12 +9,14 @@
 #include "Tour.h"
 #include "Node.h"
 #include "Point.h"
-/*
+
+
 Tour::Tour()
 {
-    // TODO: write this member
+    front = nullptr;
+    numberPoints = 0;
 }
-*/
+
 Tour::Tour(Point a, Point b, Point c, Point d)
 {
     front = new Node(a, nullptr);
@@ -25,23 +27,34 @@ Tour::Tour(Point a, Point b, Point c, Point d)
 
     tmpNodePointer = tmp;
     tmp = new Node(b, tmpNodePointer);
-
     front->next = tmp;
 
     numberPoints = 4;
-
 }
 
 Tour::~Tour()
 {
-    // TODO: write this member
+    if (0 < numberPoints)
+    {
+        Node * it = front->next;
+        Node * nextNode;
+        while (it != front)
+        {
+            nextNode = it->next;
+
+            delete it;
+
+            it = nextNode;
+        }
+        delete front;
+    }
 }
 
 void Tour::show()
 {
     Node * it = front->next;
     cout << "(" << front->point.x << ", " << front->point.y << ")" << endl;
-    while (it != front)
+    while (it != front && 1 < numberPoints)
     {
         cout << "(" << it->point.x << ", " << it->point.y << ")" << endl;
         it = it->next;
@@ -52,7 +65,7 @@ void Tour::draw(QGraphicsScene *scene)
 {
     Node * it = front->next;
     front->point.draw(scene);
-    while (it != front)
+    while (it != front && 1 < numberPoints)
     {
         it->point.draw(scene);
         it = it->next;
@@ -76,7 +89,6 @@ double Tour::distance()
         it = it->next;
         i++;
     }
-    cout << 1 << endl;
     distance += it->point.distanceTo(it->next->point);
 
     return distance;
@@ -84,36 +96,82 @@ double Tour::distance()
 
 void Tour::insertNearest(Point p)
 {
-    Node * it = front->next;
-    Node * nearest = front;
-    double rainbow = p.distanceTo(front->next->point);
-
-    while (it != front)
+    if (1 < numberPoints)
     {
-        cout << it->point.toString() << endl;
+        Node * it = front->next;
+        Node * nearest = front;
+        double rainbow = p.distanceTo(front->next->point);
+
+        while (it != front)
+        {
+            if (p.distanceTo(it->next->point) < rainbow )
+            {
+                nearest = it;
+                rainbow = p.distanceTo(it->next->point);
+            }
+            it = it->next;
+        }
         if (p.distanceTo(it->next->point) < rainbow )
         {
-            cout << 0 << endl;
             nearest = it;
             rainbow = p.distanceTo(it->next->point);
         }
 
-        it = it->next;
+        Node * addedNode = new Node(p, nearest->next);
+        nearest->next = addedNode;
     }
-    cout << it->point.toString() << endl;
-    if (p.distanceTo(it->next->point) < rainbow )
+    else if (numberPoints == 1)
     {
-        nearest = it;
-        rainbow = p.distanceTo(it->next->point);
+        Node * addedNode = new Node(p, front);
+        front->next = addedNode;
     }
-
-    Node addedNode(p,it->next);
-    nearest->next = &addedNode;
-    cout << "N: " << nearest->point.toString() << endl;
-    cout << nearest->next->point.toString() << endl;
+    else
+    {
+        front = new Node(p, nullptr);
+    }
+    numberPoints++;
 }
 
 void Tour::insertSmallest(Point p)
 {
-    // TODO: write this member
+    if (1 < numberPoints)
+    {
+        Node * it = front->next;
+        Node * nearest = front;
+        double shortestDistance = p.distanceTo(front->point) + p.distanceTo(front->next->point) - (front->point).distanceTo(front->next->point);
+        double curDist;
+
+        while (it != front)
+        {
+            curDist = p.distanceTo(it->point) + p.distanceTo(it->next->point)  - (it->point).distanceTo(it->next->point);
+            if (curDist < shortestDistance)
+            {
+                nearest = it;
+                shortestDistance = curDist;
+            }
+            it = it->next;
+        }
+
+        curDist = p.distanceTo(it->point) + p.distanceTo(it->next->point)  - (it->point).distanceTo(it->next->point);
+        if (curDist < shortestDistance)
+        {
+            nearest = it;
+            shortestDistance = curDist;
+        }
+
+
+        Node * addedNode = new Node(p, nearest->next);
+        nearest->next = addedNode;
+
+    }
+    else if (numberPoints == 1)
+    {
+        Node * addedNode = new Node(p, front);
+        front->next = addedNode;
+    }
+    else
+    {
+        front = new Node(p, front);
+    }
+    numberPoints++;
 }
