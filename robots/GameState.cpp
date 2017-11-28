@@ -16,23 +16,55 @@ using std::endl;
 
 
 GameState::GameState(){}
+GameState::~GameState()
+{
+    for (size_t i = 0; i < robots.size(); i++) {
+        delete robots[i];
+    }
+}
 
 GameState::GameState(int numberOfRobots) {
-    for (int i = 0; i < numberOfRobots; i++) {
+    for (unsigned int i = 0; i < numberOfRobots; i++) {
         Robot * robot;
-        do {robot = new Robot();}
+        do
+        {
+            robot = new Robot();
+        }
         while (!isEmpty (*robot));
         robots.push_back(robot);
+        cout << "New R-n: " << i << endl;
     }
     teleportHero();
 }
 
+GameState::GameState( const GameState& other)
+{
+    hero = other.hero;
+    for (size_t i = 0; i < other.robots.size(); i++) {
+        this->robots[i] = new Robot(*other.robots[i]);
+    }
+}
+
+GameState& GameState::operator =(const GameState& other)
+{
+    this->hero = other.hero;
+
+    while ( !this->robots.empty() ) {
+        delete this->robots[this->robots.size() - 1];
+        this->robots.pop_back();
+    }
+    for (size_t i = 0; i < other.robots.size(); i++) {
+        this->robots.push_back( new Robot(*other.robots[i]) );
+    }
+    return *this;
+}
+
 void GameState::draw(QGraphicsScene *scene) const {
     scene->clear();
-    for (size_t i = 0; i < robots.size(); ++i)
+    for (size_t i = 0; i < robots.size(); i++)
+    {
         robots[i]->draw(scene);
-    for (size_t i = 0; i < junks.size(); ++i)
-        junks[i].draw(scene);
+    }
     hero.draw(scene);
 }
 
@@ -48,26 +80,38 @@ void GameState::moveRobots() {
 
 int GameState::countCollisions() {
     int numberDestroyed = 0;
+
     unsigned int i = 0;
     while (i < robots.size()) {
-        bool hitJunk = robots[i]->isJunk();
+        bool noJunk = noJunkAt(*robots[i], i);
         bool collision = (countRobotsAt (*robots[i]) > 1);
-        if (hitJunk || collision) {
-            if (!hitJunk)
+        if (collision) {
+            if (noJunk)
             {
-                junks.push_back (Junk(*robots[i]));
+                Unit * uTmp = robots[i];
+                robots[i] = new Junk(*robots[i]);
+                delete uTmp;
+                numberDestroyed++;
+                i++;
             }
-            //delete robots[i];
-            robots[i] = robots[robots.size()-1];
-            robots.pop_back();
-            numberDestroyed++;
+            else
+            {
+                delete robots[i];
+                robots[i] = robots[robots.size()-1];
+                robots.pop_back();
+                numberDestroyed++;
+            }
         } else i++;
     }
     return numberDestroyed;
 }
 
 bool GameState::anyRobotsLeft() const {
-    return (robots.size() != 0);
+    for (size_t i = 0; i < robots.size(); i++)
+    {
+        if (!robots[i]->isJunk()) return true;
+    }
+    return false;
 }
 
 bool GameState::heroDead() const {
@@ -76,8 +120,10 @@ bool GameState::heroDead() const {
 
 bool GameState::isSafe(const Unit& unit) const {
     for (unsigned int i = 0; i < robots.size(); i++)
-        if (robots[i]->attacks(unit)) return false;
-    if (unit.isJunk()) return false;
+        if (!robots[i]->isJunk())
+        {
+            if (robots[i]->attacks(unit) || robots[i]->at(unit)) return false;
+        }
     return true;
 }
 
@@ -91,28 +137,40 @@ Hero GameState::getHero() const {return hero;}
  * Free of robots and junk only
  */
 bool GameState::isEmpty(const Unit& unit) const {
-    return (countRobotsAt(unit) == 0 && !unit.isJunk());
+    return (countRobotsAt(unit) == 0);
 }
 
-/*
- * Is there junk at unit?
- */
-/* REMOVED OLD FUNCTIONÉ
-bool GameState::junkAt(const Unit& unit) const {
-    for (size_t i = 0; i < junks.size(n); ++i)
-        if (junks[i].at(unit)) return true;
-    return false;
+
+bool GameState::noJunkAt(const Unit& unit, const int index)
+{
+    for (size_t i = 0; i < robots.size(); i++)
+    {
+        if (robots[i]->at(unit) && robots[i]->isJunk() && i != index)
+        {
+            return false;
+        }
+    }
+    return true;
 }
-*/
+
 
 /*
  * How many robots are there at unit?
  */
 int GameState::countRobotsAt(const Unit& unit) const {
     int count = 0;
+
     for (size_t i = 0; i < robots.size(); ++i) {
         if (robots[i]->at(unit))
             count++;
     }
     return count;
+}
+
+
+
+//DEBUG
+int GameState::getSize() const
+{
+    return robots.size();
 }

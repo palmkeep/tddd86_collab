@@ -15,7 +15,4 @@ void Robot::draw(QGraphicsScene *scene) const {
                              JUNK_RADIUS, JUNK_RADIUS), QPen(), QBrush(ROBOT_COLOR));
 }
 
-bool Robot::isJunk() const
-{
-    return false;
-}
+bool Robot::isJunk() const {return false;}

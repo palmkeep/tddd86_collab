@@ -10,6 +10,12 @@
 #include "Robot.h"
 #include "Junk.h"
 
+//DEBUG
+#include <iostream>
+using std::cout;
+using std::endl;
+
+
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent) {
     // set default size and color
@@ -156,8 +162,14 @@ void MainWindow::processMove(bool waiting) {
     displayScore();
 
     if (!gameState.anyRobotsLeft()) { // won level
+        cout << "Max-R: " << MAX_ROBOTS << endl;
+        cout << "Num-R: " << numberOfRobots << endl;
+        cout << "R-Inc: " << ROBOTS_INC << endl;
         numberOfRobots = std::min(MAX_ROBOTS, numberOfRobots + ROBOTS_INC);
+        cout << "Num-R: " << numberOfRobots << endl;
         gameState = GameState(numberOfRobots);
+        cout << "R-Size" << gameState.getSize() << endl;
+
         gameState.draw(scene);
         ++level;
         displayLevel();
@@ -191,6 +203,7 @@ void MainWindow::resetGame() {
     level = 1;
     numberOfRobots = MIN_ROBOTS;
     gameState = GameState(numberOfRobots);
+    cout << "R-Size" << gameState.getSize() << endl;
     gameState.draw(scene);
     displayScore();
     displayLevel();

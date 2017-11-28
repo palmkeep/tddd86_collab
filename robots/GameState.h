@@ -20,7 +20,10 @@
 class GameState {
 public:
     GameState();
-    GameState(int numberOfRobots);
+    ~GameState();
+    GameState( int numberOfRobots );
+    GameState( const GameState& );
+    GameState& operator =(const GameState& other);
 
     /*
      * Clear and redraw entire playing field
@@ -68,15 +71,17 @@ public:
      */
     Hero getHero () const;
 
+    int getSize () const;
+
+
 private:
-    std::vector<Robot*> robots;  // the robots
-    std::vector<Junk> junks;    // robots that have turned to junk
+    std::vector<Robot*> robots; // the robots & junk
     Hero hero;                  // the hero
 
     // private helpers
     bool isEmpty(const Unit& unit) const;
-    bool junkAt(const Unit& unit) const;
     int countRobotsAt(const Unit& unit) const;
+    bool noJunkAt(const Unit& unit, const int index);
 
 };
 
