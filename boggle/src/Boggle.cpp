@@ -81,7 +81,49 @@ bool Boggle::isWordInLexicon(const string word)
     return wordList.contains(word);
 }
 
+/*
+void nextCharInChain(const int& i, const int& j, int& length, vector<string>& possibleWords)
+{
+
+}
+*/
+
+void getWordsForPoint(const int& index, const string& prefix, vector<string>& possibleWords)
+{
+    if () // PSUEDO: prefix is in lexicon (kan hitta bara de första bokstäverna?)
+    {
+        // Kolla om de finns i lexicon + fortsätt (prefix.length() > 4)
+        grid[index].visited = true;
+
+        int x = index % 4;
+        int y = index / 4;
+
+        vector<int> nextIndex;
+        for (int i = 0; i < 16; i++)
+        {
+            int newX = i % 4;
+            int newY = i / 4;
+            if ( !grid[index].visited && newX != (x + 2) % 4 && newY != (y + 2) % 4 )
+            {
+                nextIndex.push_back(i);
+            }
+        }
+
+        for (vector<int>::iterator newIndex = nextIndex.begin(); newIndex != nextIndex.end(); newIndex++)
+        {
+            string newPrefix = prefix + grid[*newIndex];
+            getWordsForPoint(*newIndex, newPrefix, possibleWords);
+        }
+    }
+}
+
 vector<string> Boggle::getWordsOnBoard()
 {
-    //IMPLEMENT THIS STUFF
+    vector<string> possibleWords;
+
+    for (int index = 0; i < 16; i++)
+    {
+        string prefix = grid[index].c;
+        getWordsForPoint(index, prefix, possibleWords);
+    }
 }

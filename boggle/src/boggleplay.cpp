@@ -19,7 +19,7 @@ using std::cout;        using std::endl;
  * Plays one game of Boggle using the given boggle game state object.
  */
 
-bool checkIsOldWord(const string &word, const vector<string> &playersWords)
+bool checkIsOldWord(const string& word, const vector<string>& playersWords)
 {
     bool ret = false;
     if (!playersWords.empty())
@@ -35,7 +35,7 @@ bool checkIsOldWord(const string &word, const vector<string> &playersWords)
     return ret;
 }
 
-bool canBeFormedOnBoard(const string word, vector<string> &wordsOnBoard)
+bool canBeFormedOnBoard(const string& word, vector<string>& wordsOnBoard)
 {
     bool ret = false;
     if (!wordsOnBoard.empty())
@@ -51,7 +51,7 @@ bool canBeFormedOnBoard(const string word, vector<string> &wordsOnBoard)
     return ret;
 }
 
-void checkWordUpdateScore(const string &word, Boggle &boggle, vector<string> &wordsOnBoard, vector<string> &playersWords, int &playersWordCount, int &playersScore)
+void checkWordUpdateScore(const string& word, Boggle& boggle, vector<string>& wordsOnBoard, vector<string>& playersWords, int& playersWordCount, int& playersScore)
 {
     if (word.length() < 4)
     {
@@ -103,6 +103,7 @@ void playOneGame(Boggle& boggle) {
     vector<string> playersWords;
     int playersWordCount = 0;
     int playersScore = 0;
+
 
     if (!yesOrNo("Do you want to generate a random board? "))
     {
