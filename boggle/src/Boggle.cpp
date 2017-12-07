@@ -20,11 +20,11 @@ static const int GRID_SIZE = 4;     // the grid side length
 static const int CUBE_SIDES = 6;    // the number of sides on each cube
 
 static string CUBES[NUM_CUBES] = {  // the letters on all 6 sides of every cube
-   "AAEEGN", "ABBJOO", "ACHOPS", "AFFKPS",
-   "AOOTTW", "CIMOTU", "DEILRX", "DELRVY",
-   "DISTTY", "EEGHNW", "EEINSU", "EHRTVW",
-   "EIOSST", "ELRTTY", "HIMNQU", "HLNNRZ"
-};
+                                    "AAEEGN", "ABBJOO", "ACHOPS", "AFFKPS",
+                                    "AOOTTW", "CIMOTU", "DEILRX", "DELRVY",
+                                    "DISTTY", "EEGHNW", "EEINSU", "EHRTVW",
+                                    "EIOSST", "ELRTTY", "HIMNQU", "HLNNRZ"
+                                 };
 string* shuffledCubes = CUBES;
 
 // TODO: implement the members you declared in Boggle.h
@@ -76,22 +76,31 @@ void Boggle::setBoard(const string cubeFaces)
     }
 }
 
-bool Boggle::isWordInLexicon(const string word)
+bool Boggle::isWordInLexicon(string word) const
 {
     return wordList.contains(word);
 }
 
-/*
-void nextCharInChain(const int& i, const int& j, int& length, vector<string>& possibleWords)
+bool Boggle::containsPrefix(string prefix) const
 {
-
+    return wordList.containsPrefix(prefix);
 }
-*/
 
-void getWordsForPoint(const int& index, const string& prefix, vector<string>& possibleWords)
-{
-    if () // PSUEDO: prefix is in lexicon (kan hitta bara de första bokstäverna?)
+/*
+    void nextCharInChain(const int& i, const int& j, int& length, vector<string>& possibleWords)
     {
+
+    }
+    */
+
+void Boggle::getWordsForPoint(const int index, string& prefix, vector<string>& possibleWords)
+{
+    if (containsPrefix(prefix)) // PSUEDO: prefix is in lexicon (kan hitta bara de första bokstäverna?)
+    {
+        if (isWordInLexicon(prefix))
+        {
+            possibleWords.push_back(prefix);
+        }
         // Kolla om de finns i lexicon + fortsätt (prefix.length() > 4)
         grid[index].visited = true;
 
@@ -111,8 +120,12 @@ void getWordsForPoint(const int& index, const string& prefix, vector<string>& po
 
         for (vector<int>::iterator newIndex = nextIndex.begin(); newIndex != nextIndex.end(); newIndex++)
         {
-            string newPrefix = prefix + grid[*newIndex];
-            getWordsForPoint(*newIndex, newPrefix, possibleWords);
+            prefix += grid[*newIndex].c;
+            getWordsForPoint(*newIndex, prefix, possibleWords);
+        }
+        if (0 < prefix.length()) // 0 < prefix.length()
+        {
+            prefix = prefix.substr(0, prefix.length() - 2);
         }
     }
 }
@@ -121,9 +134,14 @@ vector<string> Boggle::getWordsOnBoard()
 {
     vector<string> possibleWords;
 
-    for (int index = 0; i < 16; i++)
+    for (int index = 0; index < 16; index++)
     {
-        string prefix = grid[index].c;
+        string prefix = "";
+        prefix += grid[index].c;
         getWordsForPoint(index, prefix, possibleWords);
+    }
+    for (vector<string>::iterator it = possibleWords.begin(); it != possibleWords.end(); it++)
+    {
+        cout << *it << endl;
     }
 }

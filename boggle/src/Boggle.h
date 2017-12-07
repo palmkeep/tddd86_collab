@@ -27,7 +27,9 @@ public:
     void draw();
     void shuffleCubes();
     void setBoard(const string cubeFaces);
-    bool isWordInLexicon(const string word);
+    bool isWordInLexicon(string word) const;
+    bool containsPrefix(string prefix) const;
+    void getWordsForPoint(const int index, string& prefix, vector<string>& possibleWords);
     vector<string> getWordsOnBoard();
 
 private:
