@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <stdint.h>
+
 #include "error.h"
 #include "lexicon.h"
 #include "strlib.h"

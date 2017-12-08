@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <set>
 #include "lexicon.h"
 // TODO: include any other header files you need
 
@@ -19,6 +20,7 @@ class Boggle {
 public:
     const string DICTIONARY_FILE = "EnglishWords.dat";
     const Lexicon wordList = Lexicon(DICTIONARY_FILE);
+
     const int MIN_WORD_LENGTH = 4;
     const int BOARD_SIZE = 4;
 
@@ -27,14 +29,27 @@ public:
     void draw();
     void shuffleCubes();
     void setBoard(const string cubeFaces);
-    bool isWordInLexicon(string word) const;
-    bool containsPrefix(string prefix) const;
-    void getWordsForPoint(const int index, string& prefix, vector<string>& possibleWords);
-    vector<string> getWordsOnBoard();
+    bool isWordInLexicon(const string& word) const;
+    bool containsPrefix(const string& prefix) const;
+
+
+    bool findWordForPoint(const int index, string prefix, const string& word);
+    bool findWord(const string& word);
+
+
+    set<string> getWordsOnBoard();
+
 
 private:
-    // TODO: decide the private member variables/functions and declare them
+    void getWordsForPoint(const int index, string prefix, set<string>& possibleWords);
 
+    string* shuffledCubes;
+
+    struct CUBE
+    {
+        char c;
+        bool visited;
+    } grid[];
 };
 
 struct cube;

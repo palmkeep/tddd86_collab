@@ -19,12 +19,13 @@ using std::cout;        using std::endl;
  * Plays one game of Boggle using the given boggle game state object.
  */
 
-bool checkIsOldWord(const string& word, const vector<string>& playersWords)
+// Returns true if player already guessed the word.
+bool checkIsOldWord(const string& word, const set<string>& playersWords)
 {
     bool ret = false;
     if (!playersWords.empty())
     {
-        for (vector<string>::const_iterator oldWord = playersWords.begin(); oldWord != playersWords.end(); oldWord++)
+        for (set<string>::const_iterator oldWord = playersWords.begin(); oldWord != playersWords.end(); oldWord++)
         {
             if (word == *oldWord)
             {
@@ -35,12 +36,13 @@ bool checkIsOldWord(const string& word, const vector<string>& playersWords)
     return ret;
 }
 
-bool canBeFormedOnBoard(const string& word, vector<string>& wordsOnBoard)
+// Returns true if guessed word can be formed on board.
+bool canBeFormedOnBoard(const string& word, set<string>& wordsOnBoard)
 {
     bool ret = false;
     if (!wordsOnBoard.empty())
     {
-        for (vector<string>::iterator wordOnBoard = wordsOnBoard.begin(); wordOnBoard != wordsOnBoard.end(); wordOnBoard++)
+        for (set<string>::iterator wordOnBoard = wordsOnBoard.begin(); wordOnBoard != wordsOnBoard.end(); wordOnBoard++)
         {
             if (word == *wordOnBoard)
             {
@@ -51,7 +53,8 @@ bool canBeFormedOnBoard(const string& word, vector<string>& wordsOnBoard)
     return ret;
 }
 
-void checkWordUpdateScore(const string& word, Boggle& boggle, vector<string>& wordsOnBoard, vector<string>& playersWords, int& playersWordCount, int& playersScore)
+// Checks if guessed word follows the requirements, changes playersScore and removes the correct guessed word from wordsOnBoard.
+void checkWordUpdateScore(const string& word, Boggle& boggle, set<string>& wordsOnBoard, set<string>& playersWords, int& playersWordCount, int& playersScore)
 {
     if (word.length() < 4)
     {
@@ -63,11 +66,20 @@ void checkWordUpdateScore(const string& word, Boggle& boggle, vector<string>& wo
     }
     else
     {
-        if (boggle.isWordInLexicon(word) && canBeFormedOnBoard(word, wordsOnBoard))
+        if (boggle.findWord(word) && canBeFormedOnBoard(word, wordsOnBoard))
         {
             playersScore += word.length() - 3;
-            playersWords.push_back(word);
+            playersWords.insert(word);
             playersWordCount++;
+
+            for (set<string>::iterator it = wordsOnBoard.begin(); it != wordsOnBoard.end(); it++)
+            {
+                if( *it == word ){
+                    wordsOnBoard.erase(it);
+                    break;
+                }
+            }
+
             cout << "You found a new word! \"" << word << "\"" << endl;
         }
         else
@@ -77,12 +89,13 @@ void checkWordUpdateScore(const string& word, Boggle& boggle, vector<string>& wo
     }
 }
 
-void promptPlayerInput(const vector<string> playersWords, const int playersWordCount, const int playersScore)
+// Handels the guessed words and prints them out.
+void promptPlayerInput(const set<string> playersWords, const int playersWordCount, const int playersScore)
 {
     cout << "Your words (" << playersWordCount << "): {";
     if(!playersWords.empty())
     {
-        vector<string>::const_iterator word = playersWords.begin();
+        set<string>::const_iterator word = playersWords.begin();
         cout << "\"" << *word << "\" ";
         word++;
 
@@ -99,8 +112,9 @@ void promptPlayerInput(const vector<string> playersWords, const int playersWordC
     cout << "Type a word (or press Enter to end your turn): ";
 }
 
+// The main program that handles the game logic and game structure.
 void playOneGame(Boggle& boggle) {
-    vector<string> playersWords;
+    set<string> playersWords;
     int playersWordCount = 0;
     int playersScore = 0;
 
@@ -126,7 +140,7 @@ void playOneGame(Boggle& boggle) {
         boggle.shuffleCubes();
     }
 
-    vector<string> wordsOnBoard = boggle.getWordsOnBoard();
+    set<string> wordsOnBoard = boggle.getWordsOnBoard();
 
     cout << "It's your turn!" << endl;
     boggle.draw();
@@ -136,16 +150,49 @@ void playOneGame(Boggle& boggle) {
     while (!line.empty())
     {
         promptPlayerInput(playersWords, playersWordCount, playersScore);
-        std::getline( std::cin, line);
 
+        std::getline( std::cin, line);
         checkWordUpdateScore(line, boggle, wordsOnBoard, playersWords, playersWordCount, playersScore);
 
 
         boggle.draw();
     }
 
+    for (auto it = wordsOnBoard.begin(); it != wordsOnBoard.end(); it++)
+    {
+        cout << *it << endl;
+    }
+
     //COMPUTERS TURN
-    cout << "ExitPlay" << endl;
+    cout << "It's my turn" << endl;
+    cout << "My words (" << playersWordCount << "): {";
+    int computerScore = 0;
+    if(!playersWords.empty())
+    {
+        set<string>::const_iterator word = wordsOnBoard.begin();
+        computerScore += word->length() - 3;
+        cout << "\"" << *word << "\" ";
+        word++;
+
+        if (1 < wordsOnBoard.size())
+        {
+            for(word; word != wordsOnBoard.end(); word++)
+            {
+                computerScore += word->length() - 3;
+                cout << ", \"" << *word << "\" ";
+            }
+        }
+    }
+    cout << "}" << endl;
+    cout << "My score: " << computerScore << endl;
+    if (playersScore < computerScore)
+    {
+        cout << "Ha ha ha, I destroyed you. Better luck next time, puny human!" << endl;
+    }
+    else
+    {
+        cout << "You beat me yet I see no sticks a' ram sticking out of your face. How can this be?" << endl;
+    }
 }
 
 
