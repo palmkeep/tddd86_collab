@@ -30,4 +30,6 @@ void compress(istream& input, obitstream& output);
 void decompress(ibitstream& input, ostream& output);
 void freeTree(HuffmanNode* node);
 
+void gatherLeafNodes(const HuffmanNode* huffNode, map<int, string>& encodingMap, string& encoding);
+
 #endif
