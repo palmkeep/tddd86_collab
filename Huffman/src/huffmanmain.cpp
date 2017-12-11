@@ -145,6 +145,7 @@ void test_buildFrequencyTable(map<int, int> &freqTable, string& data, bool& isFi
 }
 
 /*
+        cout << "ch: " << ch << endl;
  * Tests the buildEncodingTree function.
  * Accepts a frequency table map as a parameter, presumably the one generated
  * previously in step 1 by buildFrequencyTable.
