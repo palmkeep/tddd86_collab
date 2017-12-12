@@ -28,11 +28,29 @@ void render_line(QGraphicsScene* scene, const Point& p1, const Point& p2) {
     p1.lineTo(scene, p2);
 }
 
+
+bool slopeComp(const pair<Point, double>& p1, const pair<Point, double>& p2)
+{
+    return p1.second < p2.second;
+}
+
+bool slopeEqu(const pair<Point, double>& p1, const pair<Point, double>& p2)
+{
+    if (p1.second == numeric_limits<double>::infinity() && p2.second == numeric_limits<double>::infinity())
+    {
+        return true;
+    }
+    else
+    {
+        return abs(p1.second - p2.second) < 0.00000001;
+    }
+}
+
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
     // open file
-    string filename = "input3000.txt";
+    string filename = "mystery10089.txt";
     ifstream input;
     input.open(filename);
 
@@ -67,7 +85,76 @@ int main(int argc, char *argv[]) {
     // makes finding endpoints of line segments easy
     sort(points.begin(), points.end());
     auto begin = chrono::high_resolution_clock::now();
+    
+    vector<vector<Point>> lines;
+    for (int i = 0; i < N; i++)
+    {
+        vector<pair<Point, double>> slopes;
+        for (int j = 0; j < N; j++)
+        {
+            if (i != j)
+            {
+            slopes.push_back(pair<Point, double>( points.at(j), points.at(i).slopeTo(points.at(j)) ));
+            }
+        }
 
+        sort(slopes.begin(), slopes.end(), slopeComp);
+
+
+
+        vector<Point> currLine;
+        currLine.push_back(points.at(i));
+        pair<Point, double> prevPointSlope = *slopes.begin();
+        currLine.push_back(slopes.begin()->first);
+        int numPoints = 2;
+
+        for (auto it = slopes.begin() + 1; it != slopes.end(); it++)
+        {
+            if (slopeEqu(prevPointSlope, *it))
+            {
+                currLine.push_back(it->first);
+                numPoints += 1;
+            }
+            else
+            {
+                if (4 <= numPoints)
+                {
+                    sort(currLine.begin(), currLine.end());
+                    Point a = currLine.at(0);
+                    Point b = currLine.at(currLine.size()-1);
+                    lines.push_back( move(currLine) );
+                    render_line(scene, a, b);
+                }
+                prevPointSlope = *it;
+                currLine.clear();
+                currLine.push_back(points.at(i));
+                currLine.push_back(it->first);
+                numPoints = 2;
+            }
+        }
+
+        if (4 <= numPoints)
+        {
+            sort(currLine.begin(), currLine.end());
+            Point a = currLine.at(0);
+            Point b = currLine.at(currLine.size()-1);
+            lines.push_back( move(currLine) );
+            render_line(scene, a, b);
+        }
+    }
+
+
+    auto end = chrono::high_resolution_clock::now();
+    cout << "Computing line segments took "
+         << std::chrono::duration_cast<chrono::milliseconds>(end - begin).count()
+         << " milliseconds." << endl;
+
+    return a.exec(); // start Qt event loop
+}
+
+
+
+/*
     // iterate through all combinations of 4 points
     for (int i = 0 ; i < N-3 ; ++i) {
         for (int j = i+1 ; j < N-2 ; ++j) {
@@ -84,11 +171,4 @@ int main(int argc, char *argv[]) {
             }
         }
     }
-
-    auto end = chrono::high_resolution_clock::now();
-    cout << "Computing line segments took "
-         << std::chrono::duration_cast<chrono::milliseconds>(end - begin).count()
-         << " milliseconds." << endl;
-
-    return a.exec(); // start Qt event loop
-}
+*/

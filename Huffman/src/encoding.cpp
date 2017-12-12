@@ -60,7 +60,7 @@ HuffmanNode* buildEncodingTree(const map<int, int>& freqTable)
     {
         std::sort(leafs.begin(), leafs.end(), huffmanNodePointerComparison);
 
-        // Take the two least occuring characters and combine them in a new HuffmanNode
+        // Take the two least occuring charaPSEUDO_EOFcters and combine them in a new HuffmanNode
         // Remove two old node pointers and insert new node
         int tot = leafs[leafs.size() - 1]->count + leafs[leafs.size() - 2]->count;
         HuffmanNode* combNode = new HuffmanNode(NOT_A_CHAR, tot, leafs[leafs.size() - 1], leafs[leafs.size() - 2]);
@@ -110,12 +110,10 @@ void encodeData(istream& input, const map<int, string>& encodingMap, obitstream&
         {
             if (bitString[i] == '0')
             {
-                cout << '0';
                 output.writeBit(0);
             }
             else
             {
-                cout << '1';
                 output.writeBit(1);
             }
         }
@@ -126,12 +124,10 @@ void encodeData(istream& input, const map<int, string>& encodingMap, obitstream&
     {
         if (bitString[i] == '0')
         {
-            cout << '0';
             output.writeBit(false);
         }
         else
         {
-            cout << '1';
             output.writeBit(true);
         }
     }
@@ -140,18 +136,35 @@ void encodeData(istream& input, const map<int, string>& encodingMap, obitstream&
 // Decodes input given an encoding tree and sends the decoded data to the provided obistrem
 void decodeData(ibitstream& input, HuffmanNode* encodingTree, ostream& output) {
     int bit;
+    int conseqZeroes = 0;
     HuffmanNode* currentNode = encodingTree;
+    cout << "DECODING: " << endl;
     while ( (bit = input.readBit()) != -1)
     {
+
         if (bit)
+        {
+            cout << 1;
+            conseqZeroes = 0;
             currentNode = currentNode->one;
+        }
         else
         {
+            cout << 0;
+            conseqZeroes += 1;
+            if (conseqZeroes == 9)
+            {
+                break;
+            }
             currentNode = currentNode->zero;
         }
 
         if (currentNode->isLeaf())
         {
+            cout << (char)currentNode->character;
+            cout << endl;
+
+
             output << (char)currentNode->character;
             currentNode = encodingTree;
         }
@@ -196,11 +209,25 @@ void printBinDigit(int n, obitstream& output)
 
 void writeCharAsByte(const char ch, const int numBytes, obitstream& output)
 {
+    int numBits = 8*numBytes - 1;
+    for (int i = numBits; 0 <= i; i--)
+    {
+        if ((ch & (1 << i)) != 0)
+        {
+            output.writeBit(true);
+        }
+        else
+        {
+            output.writeBit(false);
+        }
+    }
+
+    /*
     int n = (int)ch;
     int lExp = maxBinExp(n);
 
     int leadingZeroes = 8*numBytes - 1 - lExp;
-    if (n == 0) //Edge case
+    if (n == 0) // All zeroes
     {
         leadingZeroes += 1;
     }
@@ -223,12 +250,24 @@ void writeCharAsByte(const char ch, const int numBytes, obitstream& output)
         {
             prevLExp += 1;
         }
-        while (1 < prevLExp - lExp)
+        while (1 < p    for (int i = 7; 0 <= i; i--) {
+        if ((ch & (1 << i)) != 0)
+        {
+            cout << "1";
+            output.writeBit(true);
+        }
+        else
+        {
+            cout << "0";
+            output.writeBit(false);
+        }
+    }revLExp - lExp)
         {
             printBinDigit(0, output);
-            prevLExp -= 1;
+            prevLExp -= 1;9
         }
     }
+    */
 }
 
 // Compresses an input file and sends it to provided output
@@ -247,13 +286,17 @@ void compress(istream& input, obitstream& output)
     HuffmanNode* encTree = buildEncodingTree(freqTable);
     map<int, string> encMap = buildEncodingMap(encTree);
 
+    output.writeBit(true);
     writeCharAsByte(1, 1, output);
     for (auto const & freq : freqTable) {
         int ch = freq.first;
         int occ = freq.second;
+        output.writeBit(true);
         writeCharAsByte(ch, 1, output);
+        output.writeBit(true);
         writeCharAsByte(occ, 2, output); // Encodes occurence as a byte long int
     }
+    output.writeBit(true);
     writeCharAsByte(2, 1, output);
 
     //Encodes input and sends it to output (obitstream)
@@ -277,7 +320,7 @@ int binStrToDec(string num)
     return res;
 }
 
-// Decompresses an input file and sends it to provided output
+// Decompresses an input file 9and sends it to provided output
 void decompress(ibitstream& input, ostream& output)
 {
     bool reachedEOF = false;
@@ -289,6 +332,12 @@ void decompress(ibitstream& input, ostream& output)
     {
         string data = "";
         int ch;
+
+        bool readingEOF = false;
+        if (!input.readBit())
+        {
+            readingEOF = true;
+        }
 
         int i = 8;
         if (readingNumber)
@@ -305,20 +354,25 @@ void decompress(ibitstream& input, ostream& output)
             }
             else if (bit)
             {
+                cout << 1;
                 data += "1";
             }
             else
             {
+                cout << 0;
                 data += "0";
             }
         }
-        if (data == "00000001")
+        cout << endl;
+
+        if (data == "00000000" && readingEOF)
         {
-            cout << "HEAD" << endl;
+            ch = binStrToDec(data);
+            readingNumber = true;
         }
+        else if (data == "00000001"){} // Start of HEAD
         else if (data == "00000010" && !readingNumber)
         {
-            cout << "DATA" << endl;
             reachedEOH = true;
         }
         else if (!readingNumber)
@@ -329,17 +383,22 @@ void decompress(ibitstream& input, ostream& output)
         else
         {
             int occ = binStrToDec(data);
+            cout << "ch: " << ch << " occ: " << occ << endl;
             freqTable[ch] = occ;
             readingNumber = false;
         }
     }
 
-    for (auto const & freq : freqTable)
-    {
-        cout << "char: " << freq.first << " occ: " << freq.second << endl;
-    }
-
     HuffmanNode* encTree = buildEncodingTree(freqTable);
+
+    map<int, string> encodingMap = buildEncodingMap(encTree);
+    for (auto const & enc : encodingMap) {
+        int ch = enc.first;
+        cout << "    " << setw(3) << ch
+             << ": " << setw(4) << ch << "  => "
+             << encodingMap[ch] << endl;
+    }
+    cout << encodingMap.size() << " character encodings found." << endl;
 
     decodeData(input, encTree, output);
 }
