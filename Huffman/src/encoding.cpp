@@ -3,6 +3,7 @@
 // comments on every function and on complex code sections.
 // TODO: remove this comment header
 #include <vector>
+#include <queue>
 #include <map>
 
 #include <algorithm>
@@ -34,42 +35,51 @@ map<int, int> buildFrequencyTable(istream& input)
     {
         std::cout << "Error reading file" << std::endl;
     }
+    for (auto it = freqTable.begin(); it != freqTable.end(); it++)
+        cout << "freqTab: " << it->first << " oc: " << it->second << endl;
 
     return freqTable;
 }
 
 // Derefrences pointers to HuffmanNode's and compares them
-bool huffmanNodePointerComparison (HuffmanNode* i, HuffmanNode* j)
+class huffmanComp
 {
-    return ( *i < *j);
-}
+public:
+    huffmanComp() {}
+    bool operator() (HuffmanNode* i, HuffmanNode* j)
+    {
+        return ( i->count > j->count);
+    }
+};
 
 //Builds a Huffman encoding tree
 HuffmanNode* buildEncodingTree(const map<int, int>& freqTable)
 {
-    vector<HuffmanNode*> leafs;
+    priority_queue< HuffmanNode*, vector<HuffmanNode*>, huffmanComp > leafs;
 
     // Create all leaf nodes
     for (map<int, int>::const_iterator it = freqTable.begin(); it != freqTable.end(); it++)
     {
         HuffmanNode* newNode = new HuffmanNode(it->first, it->second, nullptr, nullptr);
-        leafs.push_back(newNode);
+        leafs.push(newNode);
     }
 
     while (1 < leafs.size())
     {
-        std::sort(leafs.begin(), leafs.end(), huffmanNodePointerComparison);
-
-        // Take the two least occuring charaPSEUDO_EOFcters and combine them in a new HuffmanNode
+        // Take the two least occuring characters and combine them in a new HuffmanNode
         // Remove two old node pointers and insert new node
-        int tot = leafs[leafs.size() - 1]->count + leafs[leafs.size() - 2]->count;
-        HuffmanNode* combNode = new HuffmanNode(NOT_A_CHAR, tot, leafs[leafs.size() - 1], leafs[leafs.size() - 2]);
-        leafs.pop_back();
-        leafs.pop_back();           // Remove the two pointers that where placed in the new node
-        leafs.push_back(combNode);  // Changes needed here if we want the exact same tree as in the examples
+
+        HuffmanNode* a = leafs.top();
+        leafs.pop();
+        HuffmanNode* b = leafs.top();
+        leafs.pop();
+        int sum = a->count + b->count;
+        HuffmanNode* combNode = new HuffmanNode(NOT_A_CHAR, sum, a, b);
+
+        leafs.push(combNode);  // Changes needed here if we want the exact same tree as in the examples
     }
 
-    return leafs.front();
+    return leafs.top();
 }
 
 
@@ -138,19 +148,16 @@ void decodeData(ibitstream& input, HuffmanNode* encodingTree, ostream& output) {
     int bit;
     int conseqZeroes = 0;
     HuffmanNode* currentNode = encodingTree;
-    cout << "DECODING: " << endl;
     while ( (bit = input.readBit()) != -1)
     {
 
         if (bit)
         {
-            cout << 1;
             conseqZeroes = 0;
             currentNode = currentNode->one;
         }
         else
         {
-            cout << 0;
             conseqZeroes += 1;
             if (conseqZeroes == 9)
             {
@@ -161,113 +168,55 @@ void decodeData(ibitstream& input, HuffmanNode* encodingTree, ostream& output) {
 
         if (currentNode->isLeaf())
         {
-            cout << (char)currentNode->character;
-            cout << endl;
-
-
+            if (currentNode->character == PSEUDO_EOF)
+            {
+                cout << "EOF" << endl;
+                break;
+            }
             output << (char)currentNode->character;
             currentNode = encodingTree;
         }
     }
 }
 
-// Returns the largest exponent in base 2 that fits in the given number
-int maxBinExp(int n)
+// Write a given char as a byte to output
+void writeCharAsByte(const char ch, obitstream& output)
 {
-    if (n/2 != 0)
-    {
-        return 1 + maxBinExp(n/2);
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-// Exponential function
-int ipow(int b, int exp)
-{
-    int res = 1;
-    while (exp)
-    {
-        if (exp & 1)
-        {
-            res *= b;
-        }
-        exp >>= 1;
-        b *= b;
-    }
-    return res;
-}
-
-// Prints a binary digit
-void printBinDigit(int n, obitstream& output)
-{
-    if (n == 1) { output.writeBit(true); }
-    else        { output.writeBit(false); }
-}
-
-void writeCharAsByte(const char ch, const int numBytes, obitstream& output)
-{
-    int numBits = 8*numBytes - 1;
+    int numBits = 7;
     for (int i = numBits; 0 <= i; i--)
     {
         if ((ch & (1 << i)) != 0)
         {
+            cout << 1;
             output.writeBit(true);
         }
         else
         {
+            cout << 0;
             output.writeBit(false);
         }
     }
+    cout << endl;
+}
 
-    /*
-    int n = (int)ch;
-    int lExp = maxBinExp(n);
+void writeIntAsByte(const int input, const int numBytes, obitstream& output)
+{
+    int indexBit = 8*numBytes - 1;
 
-    int leadingZeroes = 8*numBytes - 1 - lExp;
-    if (n == 0) // All zeroes
+    for (int i = indexBit; 0 <= i; i--)
     {
-        leadingZeroes += 1;
-    }
-    while (0 < leadingZeroes)
-    {
-        output.writeBit(false);
-        leadingZeroes -= 1;
-    }
-
-    int prevLExp = lExp;
-    while (n != 0)
-    {
-        printBinDigit( n/ipow(2, lExp), output);
-        n = n%ipow(2, lExp);
-
-        prevLExp = lExp;
-        lExp = maxBinExp(n);
-
-        if (n == 0)
+        if ((input & (1 << i)) != 0)
         {
-            prevLExp += 1;
-        }
-        while (1 < p    for (int i = 7; 0 <= i; i--) {
-        if ((ch & (1 << i)) != 0)
-        {
-            cout << "1";
+            cout << 1;
             output.writeBit(true);
         }
         else
         {
-            cout << "0";
+            cout << 0;
             output.writeBit(false);
         }
-    }revLExp - lExp)
-        {
-            printBinDigit(0, output);
-            prevLExp -= 1;9
-        }
     }
-    */
+
 }
 
 // Compresses an input file and sends it to provided output
@@ -287,7 +236,7 @@ void compress(istream& input, obitstream& output)
     map<int, string> encMap = buildEncodingMap(encTree);
 
     output.writeBit(true);
-    writeCharAsByte(1, 1, output);
+    writeCharAsByte(1, output);
     for (auto const & freq : freqTable) {
         int ch = freq.first;
         int occ = freq.second;
@@ -299,12 +248,13 @@ void compress(istream& input, obitstream& output)
         {
             output.writeBit(true);
         }
-        writeCharAsByte(ch, 1, output);
+        writeCharAsByte(ch, output);
         output.writeBit(true);
-        writeCharAsByte(occ, 2, output); // Encodes occurence as a byte long int
+        cout << "occ: " << occ << " ";
+        writeIntAsByte(occ, 4, output); // Encodes occurence as a byte long int
     }
     output.writeBit(true);
-    writeCharAsByte(2, 1, output);
+    writeCharAsByte(2, output);
 
     //Encodes input and sends it to output (obitstream)
     istringstream encStream(copyInput);
@@ -349,7 +299,7 @@ void decompress(ibitstream& input, ostream& output)
         int i = 8;
         if (readingNumber)
         {
-            i *= 2;
+            i *= 4;
         }
         for (i; 0 < i; i--)
         {
@@ -361,16 +311,14 @@ void decompress(ibitstream& input, ostream& output)
             }
             else if (bit)
             {
-                cout << 1;
                 data += "1";
             }
             else
             {
-                cout << 0;
                 data += "0";
             }
         }
-        cout << endl;
+        cout << "Data: " << data << endl;
 
         if (data == "00000000" && readingEOF)
         {
@@ -397,15 +345,6 @@ void decompress(ibitstream& input, ostream& output)
     }
 
     HuffmanNode* encTree = buildEncodingTree(freqTable);
-
-    map<int, string> encodingMap = buildEncodingMap(encTree);
-    for (auto const & enc : encodingMap) {
-        int ch = enc.first;
-        cout << "    " << setw(3) << ch
-             << ": " << setw(4) << ch << "  => "
-             << encodingMap[ch] << endl;
-    }
-    cout << encodingMap.size() << " character encodings found." << endl;
 
     decodeData(input, encTree, output);
 }

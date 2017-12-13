@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
     // open file
-    string filename = "mystery10089.txt";
+    string filename = "input400.txt";
     ifstream input;
     input.open(filename);
 
@@ -86,6 +86,7 @@ int main(int argc, char *argv[]) {
     sort(points.begin(), points.end());
     auto begin = chrono::high_resolution_clock::now();
     
+
     vector<vector<Point>> lines;
     for (int i = 0; i < N; i++)
     {
@@ -143,18 +144,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-
-    auto end = chrono::high_resolution_clock::now();
-    cout << "Computing line segments took "
-         << std::chrono::duration_cast<chrono::milliseconds>(end - begin).count()
-         << " milliseconds." << endl;
-
-    return a.exec(); // start Qt event loop
-}
-
-
-
-/*
+    /*
     // iterate through all combinations of 4 points
     for (int i = 0 ; i < N-3 ; ++i) {
         for (int j = i+1 ; j < N-2 ; ++j) {
@@ -162,6 +152,7 @@ int main(int argc, char *argv[]) {
                 //only consider fourth point if first three are collinear
                 if (points.at(i).slopeTo(points.at(j)) == points.at(i).slopeTo(points.at(k))) {
                     for (int m{k+1} ; m < N ; ++m) {
+                        cout << "i j k m = " << i << " "<< j << " " << k << " " << m << endl;
                         if (points.at(i).slopeTo(points.at(j)) == points.at(i).slopeTo(points.at(m))) {
                             render_line(scene, points.at(i), points.at(m));
                             a.processEvents(); // show rendered line
@@ -171,4 +162,14 @@ int main(int argc, char *argv[]) {
             }
         }
     }
-*/
+    */
+
+
+    auto end = chrono::high_resolution_clock::now();
+    cout << "Computing line segments took "
+         << std::chrono::duration_cast<chrono::milliseconds>(end - begin).count()
+         << " milliseconds." << endl;
+
+    return a.exec(); // start Qt event loop
+}
+
