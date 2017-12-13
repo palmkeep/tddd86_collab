@@ -291,7 +291,14 @@ void compress(istream& input, obitstream& output)
     for (auto const & freq : freqTable) {
         int ch = freq.first;
         int occ = freq.second;
-        output.writeBit(true);
+        if (ch == PSEUDO_EOF)
+        {
+            output.writeBit(false);
+        }
+        else
+        {
+            output.writeBit(true);
+        }
         writeCharAsByte(ch, 1, output);
         output.writeBit(true);
         writeCharAsByte(occ, 2, output); // Encodes occurence as a byte long int
@@ -367,7 +374,7 @@ void decompress(ibitstream& input, ostream& output)
 
         if (data == "00000000" && readingEOF)
         {
-            ch = binStrToDec(data);
+            ch = PSEUDO_EOF;
             readingNumber = true;
         }
         else if (data == "00000001"){} // Start of HEAD
